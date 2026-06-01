@@ -1,0 +1,108 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "claude/**"]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python-lint:
+    name: Python Lint & Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+          python-version: "3.12"
+      - name: Install dependencies
+        run: uv sync --all-packages
+      - name: Ruff lint
+        run: uv run ruff check packages agents
+      - name: Ruff format check
+        run: uv run ruff format --check packages agents
+      - name: mypy
+        run: uv run mypy --package hermes_core --package hermes_memory --package hermes_orchestrator --package hermes_api
+
+  python-test:
+    name: Python Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+          python-version: "3.12"
+      - name: Install dependencies
+        run: uv sync --all-packages
+      - name: pytest
+        run: uv run pytest packages/ -v --tb=short --cov=packages --cov-report=xml
+      - name: Upload coverage
+        uses: codecov/codecov-action@v5
+        if: always()
+        with:
+          files: coverage.xml
+          fail_ci_if_error: false
+
+  node-lint:
+    name: Node Lint & Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "10"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+          cache-dependency-path: pnpm-lock.yaml
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Show build artifacts
+        run: ls apps/mission-control/node_modules/.bin/tsc 2>/dev/null && echo "tsc OK" || echo "tsc MISSING"
+      - name: Type check
+        run: pnpm exec tsc --noEmit
+        working-directory: apps/mission-control
+      - name: ESLint
+        run: pnpm run lint
+        working-directory: apps/mission-control
+
+  node-test:
+    name: Node Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "10"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+          cache-dependency-path: pnpm-lock.yaml
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Vitest
+        run: pnpm run test
+        working-directory: apps/mission-control
+
+  secret-scan:
+    name: Secret Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: TruffleHog scan
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --only-verified

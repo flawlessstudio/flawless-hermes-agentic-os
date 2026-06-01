@@ -1,0 +1,42 @@
+name: Security
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "0 6 * * 1"  # Weekly on Monday
+
+jobs:
+  semgrep:
+    name: Semgrep SAST
+    runs-on: ubuntu-latest
+    container:
+      image: semgrep/semgrep
+    steps:
+      - uses: actions/checkout@v4
+      - name: Semgrep scan
+        run: semgrep scan --config=auto --error --json --output=semgrep.json .
+        continue-on-error: true
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: semgrep-results
+          path: semgrep.json
+
+  osv-scan:
+    name: OSV Dependency Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install OSV Scanner
+        run: |
+          curl -fsSL https://github.com/google/osv-scanner/releases/latest/download/osv-scanner_linux_amd64 \
+            -o /usr/local/bin/osv-scanner
+          chmod +x /usr/local/bin/osv-scanner
+          osv-scanner --version
+      - name: Run OSV Scanner
+        run: osv-scanner --config=osv-scanner.toml --recursive --format=table ./
