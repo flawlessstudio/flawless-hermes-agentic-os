@@ -1,0 +1,152 @@
+{
+  "_comment": "MCP server configuration template. Copy to mcp.json and replace placeholders. NEVER commit real tokens.",
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "<YOUR_ALLOWED_PATH>"],
+      "_tier": 0,
+      "_source": "modelcontextprotocol/servers",
+      "_license": "MIT"
+    },
+    "git": {
+      "command": "uvx",
+      "args": ["mcp-server-git", "--repository", "<YOUR_REPO_PATH>"],
+      "_tier": 0,
+      "_source": "modelcontextprotocol/servers",
+      "_license": "MIT"
+    },
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"],
+      "_tier": 0,
+      "_source": "modelcontextprotocol/servers",
+      "_license": "MIT"
+    },
+    "fetch": {
+      "command": "uvx",
+      "args": ["mcp-server-fetch"],
+      "_tier": 0,
+      "_source": "modelcontextprotocol/servers",
+      "_license": "MIT"
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "_tier": 0,
+      "_source": "modelcontextprotocol/servers",
+      "_license": "MIT"
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "<PAUSA_HUMANA: set in environment, never here>"
+      },
+      "_tier": 0,
+      "_source": "modelcontextprotocol/servers",
+      "_license": "MIT",
+      "_requires_human_pause": true
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp"],
+      "_tier": 0,
+      "_source": "microsoft/playwright-mcp",
+      "_license": "Apache-2.0"
+    },
+    "exa": {
+      "command": "npx",
+      "args": ["-y", "exa-mcp-server"],
+      "env": {
+        "EXA_API_KEY": "<PAUSA_HUMANA: set in environment>"
+      },
+      "_tier": 1,
+      "_source": "exa-labs/exa-mcp-server",
+      "_license": "MIT",
+      "_requires_human_pause": true
+    },
+    "supabase": {
+      "command": "npx",
+      "args": ["-y", "@supabase/mcp-server-supabase", "--access-token", "<PAUSA_HUMANA>"],
+      "_tier": 0,
+      "_source": "supabase/mcp-server-supabase",
+      "_license": "MIT",
+      "_requires_human_pause": true
+    },
+    "sentry": {
+      "command": "uvx",
+      "args": ["mcp-server-sentry", "--auth-token", "<PAUSA_HUMANA>"],
+      "_tier": 0,
+      "_source": "getsentry/sentry-mcp",
+      "_license": "MIT",
+      "_requires_human_pause": true
+    },
+    "slack": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-slack"],
+      "env": {
+        "SLACK_BOT_TOKEN": "<PAUSA_HUMANA>",
+        "SLACK_TEAM_ID": "<PAUSA_HUMANA>"
+      },
+      "_tier": 0,
+      "_source": "modelcontextprotocol/servers",
+      "_license": "MIT",
+      "_requires_human_pause": true
+    },
+    "cloudflare": {
+      "command": "npx",
+      "args": ["-y", "@cloudflare/mcp-server-cloudflare"],
+      "env": {
+        "CLOUDFLARE_API_TOKEN": "<PAUSA_HUMANA>"
+      },
+      "_tier": 0,
+      "_source": "cloudflare/mcp-server-cloudflare",
+      "_license": "Apache-2.0",
+      "_requires_human_pause": true
+    },
+    "stripe": {
+      "command": "npx",
+      "args": ["-y", "@stripe/agent-toolkit"],
+      "env": {
+        "STRIPE_SECRET_KEY": "<PAUSA_HUMANA>"
+      },
+      "_tier": 0,
+      "_source": "stripe/agent-toolkit",
+      "_license": "MIT",
+      "_requires_human_pause": true,
+      "_note": "Payment operations require explicit human confirmation via PAUSA HUMANA protocol"
+    },
+    "semgrep": {
+      "command": "uvx",
+      "args": ["semgrep-mcp"],
+      "_tier": 1,
+      "_source": "semgrep/mcp-server-semgrep",
+      "_license": "LGPL-2.1"
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"],
+      "_tier": 1,
+      "_source": "upstash/context7",
+      "_license": "MIT"
+    },
+    "e2b": {
+      "command": "npx",
+      "args": ["-y", "@e2b/mcp-server"],
+      "env": {
+        "E2B_API_KEY": "<PAUSA_HUMANA>"
+      },
+      "_tier": 1,
+      "_source": "e2b-dev/mcp-server",
+      "_license": "MIT",
+      "_requires_human_pause": true
+    },
+    "mermaid": {
+      "command": "npx",
+      "args": ["-y", "mermaid-mcp-server"],
+      "_tier": 1,
+      "_source": "mermaid-mcp",
+      "_license": "MIT"
+    }
+  }
+}
