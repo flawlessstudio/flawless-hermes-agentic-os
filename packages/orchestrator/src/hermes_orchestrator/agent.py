@@ -60,7 +60,7 @@ class BaseAgent(abc.ABC):
     ALLOWED_TOOLS: frozenset[str] = frozenset()
 
     #: Anthropic tool schema definitions.  Override in subclasses.
-    TOOL_SCHEMAS: list[dict[str, Any]] = []
+    TOOL_SCHEMAS: list[dict[str, Any]] = []  # noqa: RUF012
 
     def __init__(self, config: AgentConfig) -> None:
         self.config = config
@@ -203,7 +203,7 @@ class BaseAgent(abc.ABC):
         """
         ...
 
-    async def handle_message(self, message: AgentMessage) -> None:
+    async def handle_message(self, message: AgentMessage) -> None:  # noqa: B027
         """Handle an incoming :class:`AgentMessage` from the bus.
 
         Default implementation is a no-op.  Override in subclasses to

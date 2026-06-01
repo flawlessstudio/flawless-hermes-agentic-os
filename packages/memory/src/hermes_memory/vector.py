@@ -152,7 +152,7 @@ class VectorMemory:
         ids = result["ids"][0]
 
         out: list[MemoryQueryResult] = []
-        for doc_id, doc, meta, dist in zip(ids, docs, metas, dists):
+        for doc_id, doc, meta, dist in zip(ids, docs, metas, dists, strict=True):
             entry_meta = {k: v for k, v in meta.items() if k != "agent_id"}
             entry = MemoryEntry(
                 id=doc_id,
@@ -183,6 +183,7 @@ class VectorMemory:
             log.debug("vector_memory.deleted", id=entry_id, agent_id=agent_id)
             return True
         except Exception:
+            log.debug("vector_memory.delete_miss", id=entry_id, agent_id=agent_id)
             return False
 
     def count(self, agent_id: str) -> int:
@@ -198,7 +199,7 @@ class VectorMemory:
             self._collections.pop(agent_id, None)
             log.info("vector_memory.cleared", agent_id=agent_id)
         except Exception:
-            pass
+            log.debug("vector_memory.clear_miss", agent_id=agent_id)
 
     # ------------------------------------------------------------------ #
     # Internal helpers                                                     #

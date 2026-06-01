@@ -74,10 +74,9 @@ class TestDurabilityUnderSIGKILL:
 
         # Small sleep to let it start the write, then KILL.
         time.sleep(0.005)
-        try:
+        import contextlib
+        with contextlib.suppress(ProcessLookupError):
             os.kill(proc.pid, signal.SIGKILL)
-        except ProcessLookupError:
-            pass  # Process already finished — that's fine too.
         proc.wait()
 
         # The database MUST still be openable and readable.

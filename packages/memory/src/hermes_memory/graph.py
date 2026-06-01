@@ -145,10 +145,9 @@ class GraphMemory:
             clauses.append("agent_id = ?")
             params.append(agent_id)
         where = ("WHERE " + " AND ".join(clauses)) if clauses else ""
-        rows = self._conn.execute(
-            f"SELECT id, label, properties, agent_id FROM nodes {where} LIMIT ?",
-            (*params, limit),
-        ).fetchall()
+        # Clauses are built from a fixed allowlist of column names — no user data interpolated.
+        query = "SELECT id, label, properties, agent_id FROM nodes " + where + " LIMIT ?"  # noqa: S608
+        rows = self._conn.execute(query, (*params, limit)).fetchall()
         return [self._row_to_node(r) for r in rows]
 
     # ------------------------------------------------------------------ #
@@ -213,10 +212,9 @@ class GraphMemory:
             clauses.append("relation = ?")
             params.append(relation)
         where = ("WHERE " + " AND ".join(clauses)) if clauses else ""
-        rows = self._conn.execute(
-            f"SELECT id, source_id, target_id, relation, weight, properties FROM edges {where}",
-            params,
-        ).fetchall()
+        # Clauses are built from a fixed allowlist of column names — no user data interpolated.
+        query = "SELECT id, source_id, target_id, relation, weight, properties FROM edges " + where  # noqa: S608
+        rows = self._conn.execute(query, params).fetchall()
         return [self._row_to_edge(r) for r in rows]
 
     def delete_edge(self, edge_id: str) -> bool:

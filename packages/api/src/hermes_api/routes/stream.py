@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 import time
+from collections.abc import AsyncGenerator
 
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
@@ -12,7 +13,7 @@ from fastapi.responses import StreamingResponse
 router = APIRouter(prefix="/stream", tags=["stream"])
 
 
-async def _event_generator():
+async def _event_generator() -> AsyncGenerator[str, None]:
     """Generate SSE heartbeat events."""
     while True:
         data = json.dumps({"ts": time.time(), "type": "heartbeat"})
