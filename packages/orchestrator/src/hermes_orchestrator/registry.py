@@ -31,14 +31,14 @@ class AgentRegistry:
     """
 
     def __init__(self) -> None:
-        self._agents: dict[str, "BaseAgent"] = {}
+        self._agents: dict[str, BaseAgent] = {}
         self._lock = threading.RLock()
 
     # ------------------------------------------------------------------ #
     # Public API                                                           #
     # ------------------------------------------------------------------ #
 
-    def register(self, agent: "BaseAgent") -> None:
+    def register(self, agent: BaseAgent) -> None:
         """Add *agent* to the registry.
 
         Parameters
@@ -78,7 +78,7 @@ class AgentRegistry:
                 return True
             return False
 
-    def get(self, agent_id: str) -> "BaseAgent | None":
+    def get(self, agent_id: str) -> BaseAgent | None:
         """Retrieve an agent by ID, or ``None`` if not registered."""
         with self._lock:
             return self._agents.get(agent_id)

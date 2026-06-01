@@ -94,9 +94,7 @@ class Checkpoint:
         target = self._checkpoint_path(name)
 
         if not self._store.path.exists():
-            raise CheckpointError(
-                f"Store database does not exist yet: {self._store.path}"
-            )
+            raise CheckpointError(f"Store database does not exist yet: {self._store.path}")
 
         try:
             # Use SQLite's online backup API so we get a consistent snapshot
@@ -210,9 +208,7 @@ class Checkpoint:
     @staticmethod
     def _validate_name(name: str) -> None:
         if any(c in name for c in ("/", "\\", "\0")):
-            raise ValueError(
-                f"Checkpoint name must not contain path separators: {name!r}"
-            )
+            raise ValueError(f"Checkpoint name must not contain path separators: {name!r}")
 
     @staticmethod
     def _make_info(name: str, path: Path) -> CheckpointInfo:

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Request
 
 from hermes_api.schemas import (
     MemoryRememberRequest,
@@ -35,9 +35,7 @@ async def remember(body: MemoryRememberRequest, request: Request) -> MemoryRemem
     response_model=list[MemoryQueryResult],
     summary="Semantic search over memories",
 )
-async def search_memory(
-    body: MemorySearchRequest, request: Request
-) -> list[MemoryQueryResult]:
+async def search_memory(body: MemorySearchRequest, request: Request) -> list[MemoryQueryResult]:
     """Perform a semantic similarity search over an agent's memories."""
     memory_manager = request.app.state.memory_manager
     results = memory_manager.recall(

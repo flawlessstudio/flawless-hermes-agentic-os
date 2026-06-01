@@ -10,7 +10,6 @@ import pytest
 from hermes_core import AtomicStore, Checkpoint, FileLock
 from hermes_core.exceptions import StoreError
 
-
 # ─────────────────────────── AtomicStore ───────────────────────────────────
 
 
@@ -63,9 +62,8 @@ class TestAtomicStoreBasic:
             assert store["mykey"] == "myval"
 
     def test_getitem_missing_raises_keyerror(self, tmp_path: Path) -> None:
-        with AtomicStore(tmp_path / "state.db") as store:
-            with pytest.raises(KeyError):
-                _ = store["no_such_key"]
+        with AtomicStore(tmp_path / "state.db") as store, pytest.raises(KeyError):
+            _ = store["no_such_key"]
 
     def test_not_open_raises_store_error(self, tmp_path: Path) -> None:
         store = AtomicStore(tmp_path / "state.db")

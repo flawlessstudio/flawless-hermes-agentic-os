@@ -1,4 +1,5 @@
 """Code agent — code generation, review, testing, and refactoring."""
+
 from __future__ import annotations
 
 from hermes_orchestrator.agent import BaseAgent
@@ -12,15 +13,17 @@ class CodeAgent(BaseAgent):
     Allowed tools: read_file, write_file, run_tests, lint, git_status, git_diff, search_code
     """
 
-    ALLOWED_TOOLS: frozenset[str] = frozenset({
-        "read_file",
-        "write_file",
-        "run_tests",
-        "lint",
-        "git_status",
-        "git_diff",
-        "search_code",
-    })
+    ALLOWED_TOOLS: frozenset[str] = frozenset(
+        {
+            "read_file",
+            "write_file",
+            "run_tests",
+            "lint",
+            "git_status",
+            "git_diff",
+            "search_code",
+        }
+    )
 
     async def handle_tool(self, call: ToolCall) -> ToolResult:
         """Execute a verified tool call. Tools are wired via MCP in F4."""

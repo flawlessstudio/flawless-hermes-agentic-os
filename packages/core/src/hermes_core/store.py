@@ -36,7 +36,7 @@ _WAL_PRAGMAS = (
     "PRAGMA synchronous=NORMAL;",
     "PRAGMA temp_store=MEMORY;",
     "PRAGMA mmap_size=134217728;",  # 128 MiB
-    "PRAGMA cache_size=-8000;",     # ~8 MiB page cache
+    "PRAGMA cache_size=-8000;",  # ~8 MiB page cache
     "PRAGMA foreign_keys=ON;",
 )
 
@@ -218,10 +218,9 @@ class AtomicStore:
         self._ensure_open()
         assert self._conn is not None
 
-        with self._lock:
-            with self._conn:
-                cur = self._conn.execute("DELETE FROM state WHERE key = ?", (key,))
-                deleted = cur.rowcount > 0
+        with self._lock, self._conn:
+            cur = self._conn.execute("DELETE FROM state WHERE key = ?", (key,))
+            deleted = cur.rowcount > 0
 
         if deleted:
             log.debug("atomic_store.deleted", key=key)
@@ -253,74 +252,43 @@ class AtomicStore:
             self._conn.execute(_INDEX_DDL)
 
     def _atomic_write(self, items: dict[str, str]) -> None:
-        """Write *items* via temp-file → backup → rename.
+        """Write *items* atomically.
 
         Steps
         -----
-        1. Copy existing DB to a temp file.
-        2. Apply upserts to the temp file.
-        3. ``fsync`` the temp file.
-        4. Rename existing DB to ``.bak``.
-        5. Rename temp file to DB path.
-        6. Re-attach ``self._conn`` to the new file.
+        1. Backup current DB to ``<db>.bak`` using SQLite's online backup API.
+        2. Write all items in a single transaction on the main connection.
+        3. Checkpoint the WAL so data is in the main DB file.
+
+        SQLite WAL mode guarantees that a committed transaction is durable
+        even if the process is killed after step 2 — the WAL contains the
+        full committed data and SQLite will replay it on next open.
         """
         assert self._conn is not None
-        parent = self.path.parent
 
         try:
-            # ── Step 1: copy current DB to temp ─────────────────────────
-            tmp_fd, tmp_path_str = tempfile.mkstemp(
-                dir=parent, prefix=".hermes_tmp_", suffix=".db"
-            )
-            tmp_path = Path(tmp_path_str)
-            try:
-                os.close(tmp_fd)
-                if self.path.exists():
-                    shutil.copy2(str(self.path), str(tmp_path))
+            # ── Step 1: backup current state ────────────────────────────
+            if self.path.exists():
+                bak_conn = sqlite3.connect(str(self._bak_path))
+                self._conn.backup(bak_conn)
+                bak_conn.close()
 
-                # ── Step 2: apply writes to temp ────────────────────────
-                tmp_conn = self._open_connection(tmp_path)
-                tmp_conn.execute(_STATE_TABLE_DDL)
-                tmp_conn.execute(_INDEX_DDL)
-                with tmp_conn:
-                    for key, value in items.items():
-                        tmp_conn.execute(
-                            """
-                            INSERT INTO state (key, value, ts)
-                            VALUES (?, ?, unixepoch())
-                            ON CONFLICT(key) DO UPDATE SET
-                                value = excluded.value,
-                                ts    = excluded.ts
-                            """,
-                            (key, value),
-                        )
-                tmp_conn.execute("PRAGMA wal_checkpoint(FULL);")
-                tmp_conn.commit()
+            # ── Step 2: write in a single transaction ────────────────────
+            with self._conn:
+                for key, value in items.items():
+                    self._conn.execute(
+                        """
+                        INSERT INTO state (key, value, ts)
+                        VALUES (?, ?, unixepoch())
+                        ON CONFLICT(key) DO UPDATE SET
+                            value = excluded.value,
+                            ts    = excluded.ts
+                        """,
+                        (key, value),
+                    )
 
-                # ── Step 3: fsync the temp file ──────────────────────────
-                tmp_fd2 = os.open(str(tmp_path), os.O_RDWR)
-                try:
-                    os.fsync(tmp_fd2)
-                finally:
-                    os.close(tmp_fd2)
-
-                tmp_conn.close()
-
-                # ── Step 4 + 5: atomic rename ────────────────────────────
-                # Backup the existing DB, then move temp into place.
-                if self.path.exists():
-                    os.replace(str(self.path), str(self._bak_path))
-                os.replace(str(tmp_path), str(self.path))
-
-            except Exception:
-                # Clean up temp on failure.
-                with contextlib.suppress(OSError):
-                    tmp_path.unlink(missing_ok=True)
-                raise
-
-            # ── Step 6: re-attach connection ────────────────────────────
-            self._conn.close()
-            self._conn = self._open_connection(self.path)
+            # ── Step 3: checkpoint WAL to main file ──────────────────────
+            self._conn.execute("PRAGMA wal_checkpoint(PASSIVE);")
 
         except sqlite3.Error as exc:
             raise StoreError(f"Atomic write failed: {exc}") from exc

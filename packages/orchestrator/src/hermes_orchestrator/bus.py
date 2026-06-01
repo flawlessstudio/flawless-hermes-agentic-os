@@ -33,7 +33,7 @@ from typing import Any
 
 import structlog
 
-from hermes_orchestrator.schemas import AgentMessage, MessagePriority, MessageStatus
+from hermes_orchestrator.schemas import AgentMessage, MessageStatus
 
 log = structlog.get_logger(__name__)
 
@@ -60,9 +60,7 @@ class AsyncMessageBus:
         maxsize: int = 1000,
         worker_count: int = 4,
     ) -> None:
-        self._queue: asyncio.PriorityQueue[_QueueItem] = asyncio.PriorityQueue(
-            maxsize=maxsize
-        )
+        self._queue: asyncio.PriorityQueue[_QueueItem] = asyncio.PriorityQueue(maxsize=maxsize)
         self._dlq: list[AgentMessage] = []
         self._subscribers: dict[str, list[MessageHandler]] = {}
         self._worker_count = worker_count
@@ -230,13 +228,9 @@ class AsyncMessageBus:
             try:
                 await handler(message)
             except Exception as exc:
-                message = message.model_copy(
-                    update={"retry_count": message.retry_count + 1}
-                )
+                message = message.model_copy(update={"retry_count": message.retry_count + 1})
                 if message.retry_count >= message.max_retries:
-                    dead = message.model_copy(
-                        update={"status": MessageStatus.DEAD_LETTERED}
-                    )
+                    dead = message.model_copy(update={"status": MessageStatus.DEAD_LETTERED})
                     self._dlq.append(dead)
                     log.error(
                         "message_bus.dead_lettered",

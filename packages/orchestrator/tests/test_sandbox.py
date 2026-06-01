@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import asyncio
-from pathlib import Path
 
 import pytest
 
@@ -11,7 +10,6 @@ from hermes_orchestrator.bus import AsyncMessageBus
 from hermes_orchestrator.registry import AgentRegistry, RegistrationError
 from hermes_orchestrator.sandbox import Sandbox, SandboxViolation
 from hermes_orchestrator.schemas import AgentConfig, AgentMessage, MessagePriority, ToolCall
-
 
 # ─────────────────────────── Sandbox ───────────────────────────────────────
 

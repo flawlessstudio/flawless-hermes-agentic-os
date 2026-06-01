@@ -1,17 +1,18 @@
 """
 FastAPI application factory for Hermes Agent OS.
 """
+
 from __future__ import annotations
 
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
 
 import structlog
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .middleware import RequestIDMiddleware
-from .routes import health, agents, memory, stream
+from .routes import agents, health, memory, stream
 
 logger = structlog.get_logger(__name__)
 

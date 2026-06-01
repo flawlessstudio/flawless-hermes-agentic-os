@@ -2,6 +2,9 @@
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[tool.hatch.build.targets.wheel]
+packages = ["agents"]
+
 [project]
 name = "flawless-hermes-agentic-os"
 version = "0.1.0"
@@ -18,6 +21,12 @@ members = [
     "packages/orchestrator",
     "packages/api",
 ]
+
+[tool.uv.sources]
+hermes-core = { workspace = true }
+hermes-memory = { workspace = true }
+hermes-orchestrator = { workspace = true }
+hermes-api = { workspace = true }
 
 [tool.uv]
 dev-dependencies = [
@@ -49,10 +58,22 @@ select = [
     "S",        # bandit security
     "RUF",      # Ruff-specific
 ]
-ignore = ["ANN101", "ANN102", "S101"]
+ignore = [
+    # Deprecated ANN rules
+    "ANN401",  # Any is needed for dynamic tool kwargs
+    # Type-checking imports: we prefer runtime imports for clarity
+    "TC001", "TC002", "TC003",
+    # Naming: SandboxViolation is domain-specific (not an Error)
+    "N818",
+    # StrEnum: UP042 requires Python 3.11+, we support 3.12 but keep explicit
+    "UP042",
+    # Security false-positives in internal code
+    "S101",  # assert in tests
+]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["S", "ANN"]
+"packages/*/tests/*" = ["S", "ANN", "F841"]
+"agents/*" = ["ANN"]
 
 [tool.mypy]
 python_version = "3.12"
@@ -69,5 +90,6 @@ ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
-testpaths = ["packages/*/tests", "agents"]
-addopts = ["--tb=short", "-q"]
+testpaths = ["packages/core/tests", "packages/memory/tests", "packages/orchestrator/tests", "packages/api/tests"]
+addopts = ["--tb=short", "-q", "--import-mode=importlib"]
+

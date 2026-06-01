@@ -1,4 +1,5 @@
 """Ops agent — system health, CI/CD, deployment, and monitoring."""
+
 from __future__ import annotations
 
 from hermes_orchestrator.agent import BaseAgent
@@ -13,12 +14,14 @@ class OpsAgent(BaseAgent):
     Note: Destructive operations require PAUSA HUMANA confirmation.
     """
 
-    ALLOWED_TOOLS: frozenset[str] = frozenset({
-        "health_check",
-        "get_logs",
-        "get_metrics",
-        "list_deployments",
-    })
+    ALLOWED_TOOLS: frozenset[str] = frozenset(
+        {
+            "health_check",
+            "get_logs",
+            "get_metrics",
+            "list_deployments",
+        }
+    )
 
     async def handle_tool(self, call: ToolCall) -> ToolResult:
         """Execute a verified tool call. Tools are wired via MCP in F4."""

@@ -124,7 +124,4 @@ class Sandbox:
         return tool_name in self.allowed_tools
 
     def __repr__(self) -> str:
-        return (
-            f"Sandbox(agent_id={self.agent_id!r}, "
-            f"allowed_tools={sorted(self.allowed_tools)!r})"
-        )
+        return f"Sandbox(agent_id={self.agent_id!r}, allowed_tools={sorted(self.allowed_tools)!r})"

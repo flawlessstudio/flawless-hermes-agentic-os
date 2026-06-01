@@ -1,4 +1,5 @@
 """SSE streaming endpoint for real-time agent events."""
+
 from __future__ import annotations
 
 import asyncio

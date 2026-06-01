@@ -19,7 +19,6 @@ from pathlib import Path
 
 import pytest
 
-
 # ── Helper: a small writer script ────────────────────────────────────────────
 
 _WRITER_SCRIPT = textwrap.dedent(

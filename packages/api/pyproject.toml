@@ -22,6 +22,11 @@ dependencies = [
     "hermes-orchestrator",
 ]
 
+[tool.uv.sources]
+hermes-core = { workspace = true }
+hermes-memory = { workspace = true }
+hermes-orchestrator = { workspace = true }
+
 [project.optional-dependencies]
 dev = [
     "pytest>=8.3",

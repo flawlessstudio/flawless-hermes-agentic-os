@@ -13,7 +13,6 @@ import pytest
 from hermes_memory.graph import GraphMemory
 from hermes_memory.schemas import GraphEdge, GraphNode
 
-
 # ─────────────────────────── GraphMemory ───────────────────────────────────
 
 
@@ -48,9 +47,7 @@ class TestGraphMemory:
         gm = GraphMemory(tmp_path / "graph.db")
         a = gm.add_node(GraphNode(label="A"))
         b = gm.add_node(GraphNode(label="B"))
-        edge = gm.add_edge(
-            GraphEdge(source_id=a.id, target_id=b.id, relation="connects_to")
-        )
+        edge = gm.add_edge(GraphEdge(source_id=a.id, target_id=b.id, relation="connects_to"))
         edges = gm.get_edges(source_id=a.id)
         assert len(edges) == 1
         assert edges[0].relation == "connects_to"
@@ -74,9 +71,7 @@ class TestGraphMemory:
         grandchild = gm.add_node(GraphNode(label="grandchild"))
         gm.add_edge(GraphEdge(source_id=root.id, target_id=child1.id, relation="has"))
         gm.add_edge(GraphEdge(source_id=root.id, target_id=child2.id, relation="has"))
-        gm.add_edge(
-            GraphEdge(source_id=child1.id, target_id=grandchild.id, relation="has")
-        )
+        gm.add_edge(GraphEdge(source_id=child1.id, target_id=grandchild.id, relation="has"))
 
         result = gm.traverse(root.id, depth=2, mode="bfs")
         node_ids = {n.id for n in result.nodes}
@@ -103,9 +98,7 @@ class TestGraphMemory:
         gm = GraphMemory(tmp_path / "graph.db")
         nodes = [gm.add_node(GraphNode(label=f"n{i}")) for i in range(5)]
         for i in range(4):
-            gm.add_edge(
-                GraphEdge(source_id=nodes[i].id, target_id=nodes[i + 1].id, relation="r")
-            )
+            gm.add_edge(GraphEdge(source_id=nodes[i].id, target_id=nodes[i + 1].id, relation="r"))
         result = gm.traverse(nodes[0].id, depth=2)
         # Should include n0, n1, n2 — not n3 or n4.
         node_ids = {n.id for n in result.nodes}

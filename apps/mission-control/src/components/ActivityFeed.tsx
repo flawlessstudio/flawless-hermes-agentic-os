@@ -1,177 +1,97 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { cn } from "@/lib/utils";
+import { useState, useEffect } from "react";
+import { useSSE } from "@/hooks/useAgents";
+import { formatRelativeTime } from "@/lib/utils";
 
 interface ActivityEvent {
-  id: string;
   ts: number;
-  type: "agent_status" | "heartbeat" | "error" | "info";
-  message: string;
+  type: string;
+  agent?: string;
+  message?: string;
 }
 
-/**
- * ActivityFeed — real-time event log panel.
- *
- * Displays a scrollable, auto-scroll-to-bottom list of events.
- * Auto-pauses scrolling when the user scrolls up.
- */
-export function ActivityFeed({ className }: { className?: string }) {
-  const [events, setEvents] = useState<ActivityEvent[]>([
-    {
-      id: "init",
-      ts: Date.now() / 1000,
-      type: "info",
-      message: "Mission Control initialised",
-    },
-  ]);
-  const [autoScroll, setAutoScroll] = useState(true);
-  const listRef = useRef<HTMLUListElement>(null);
+function isActivityEvent(val: unknown): val is ActivityEvent {
+  return (
+    typeof val === "object" &&
+    val !== null &&
+    "ts" in val &&
+    typeof (val as Record<string, unknown>)["ts"] === "number" &&
+    "type" in val &&
+    typeof (val as Record<string, unknown>)["type"] === "string"
+  );
+}
 
-  // Auto-scroll when new events arrive and autoScroll is enabled.
+export function ActivityFeed() {
+  const { lastEvent } = useSSE();
+  const [events, setEvents] = useState<ActivityEvent[]>([]);
+
   useEffect(() => {
-    if (autoScroll && listRef.current) {
-      listRef.current.scrollTop = listRef.current.scrollHeight;
+    if (isActivityEvent(lastEvent)) {
+      setEvents((prev) => [lastEvent, ...prev].slice(0, 100));
     }
-  }, [events, autoScroll]);
-
-  // Listen to SSE stream and add events.
-  useEffect(() => {
-    const API_BASE =
-      typeof window !== "undefined"
-        ? (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000")
-        : "http://localhost:8000";
-
-    const es = new EventSource(`${API_BASE}/stream/events`);
-
-    es.onmessage = (e) => {
-      try {
-        const data = JSON.parse(e.data as string) as {
-          type: string;
-          ts: number;
-        };
-        const event: ActivityEvent = {
-          id: `${data.ts}-${Math.random()}`,
-          ts: data.ts,
-          type:
-            data.type === "heartbeat"
-              ? "heartbeat"
-              : data.type === "agent_status"
-                ? "agent_status"
-                : "info",
-          message:
-            data.type === "heartbeat"
-              ? "Heartbeat received"
-              : `Event: ${data.type}`,
-        };
-        setEvents((prev) => [...prev.slice(-99), event]);
-      } catch {
-        // Ignore parse errors
-      }
-    };
-
-    es.onerror = () => {
-      setEvents((prev) => [
-        ...prev.slice(-99),
-        {
-          id: `err-${Date.now()}`,
-          ts: Date.now() / 1000,
-          type: "error",
-          message: "SSE connection lost",
-        },
-      ]);
-    };
-
-    return () => es.close();
-  }, []);
-
-  function handleScroll() {
-    if (!listRef.current) return;
-    const { scrollTop, scrollHeight, clientHeight } = listRef.current;
-    const atBottom = scrollHeight - scrollTop - clientHeight < 40;
-    setAutoScroll(atBottom);
-  }
-
-  const typeColour: Record<ActivityEvent["type"], string> = {
-    agent_status: "var(--color-info)",
-    heartbeat: "var(--color-text-subtle)",
-    error: "var(--color-error)",
-    info: "var(--color-success)",
-  };
-
-  const typeLabel: Record<ActivityEvent["type"], string> = {
-    agent_status: "STATUS",
-    heartbeat: "PING",
-    error: "ERROR",
-    info: "INFO",
-  };
+  }, [lastEvent]);
 
   return (
     <section
-      className={cn("flex flex-col gap-3", className)}
-      aria-labelledby="activity-feed-heading"
+      aria-label="Activity feed"
+      aria-live="polite"
+      className="rounded-xl border"
+      style={{
+        background: "var(--color-surface-2)",
+        borderColor: "var(--color-border)",
+      }}
     >
-      <div className="flex items-center justify-between">
-        <h2
-          id="activity-feed-heading"
-          className="text-sm font-semibold"
-          style={{ color: "var(--color-text)" }}
-        >
-          Activity Feed
-        </h2>
-        {!autoScroll && (
-          <button
-            onClick={() => {
-              setAutoScroll(true);
-              if (listRef.current) {
-                listRef.current.scrollTop = listRef.current.scrollHeight;
-              }
-            }}
-            className="text-xs px-2 py-1 rounded"
-            style={{
-              background: "var(--color-accent-subtle)",
-              color: "var(--color-accent)",
-            }}
-          >
-            ↓ Latest
-          </button>
-        )}
-      </div>
-
-      <ul
-        ref={listRef}
-        onScroll={handleScroll}
-        className="flex flex-col gap-1 overflow-y-auto max-h-48"
-        aria-label="Activity events"
-        aria-live="polite"
-        aria-atomic="false"
-        aria-relevant="additions"
+      <div
+        className="px-5 py-4 border-b"
+        style={{ borderColor: "var(--color-border)" }}
       >
-        {events.map((ev) => (
-          <li
-            key={ev.id}
-            className="flex items-start gap-2 text-xs"
+        <h2 className="font-semibold text-sm">Activity Feed</h2>
+      </div>
+      <div>
+        {events.length === 0 ? (
+          <p
+            className="px-5 py-4 text-sm"
             style={{ color: "var(--color-text-muted)" }}
           >
-            <span
-              className="font-mono flex-shrink-0"
-              style={{ color: "var(--color-text-subtle)" }}
+            Waiting for events…
+          </p>
+        ) : (
+          events.map((ev, i) => (
+            <div
+              key={i}
+              className="px-5 py-3 flex justify-between items-start border-b"
+              style={{ borderColor: "var(--color-border)" }}
             >
-              {new Date(ev.ts * 1000).toLocaleTimeString()}
-            </span>
-            <span
-              className="font-mono flex-shrink-0 px-1 rounded text-xs"
-              style={{
-                color: typeColour[ev.type],
-                background: `${typeColour[ev.type]}20`,
-              }}
-            >
-              {typeLabel[ev.type]}
-            </span>
-            <span>{ev.message}</span>
-          </li>
-        ))}
-      </ul>
+              <div>
+                <span
+                  className="text-xs font-medium uppercase tracking-wider"
+                  style={{ color: "var(--color-accent)" }}
+                >
+                  {ev.type}
+                </span>
+                {ev.agent != null && (
+                  <span
+                    className="text-xs ml-2"
+                    style={{ color: "var(--color-text-muted)" }}
+                  >
+                    · {ev.agent}
+                  </span>
+                )}
+                {ev.message != null && (
+                  <p className="text-sm mt-0.5">{ev.message}</p>
+                )}
+              </div>
+              <span
+                className="text-xs ml-4 shrink-0"
+                style={{ color: "var(--color-text-muted)" }}
+              >
+                {formatRelativeTime(ev.ts)}
+              </span>
+            </div>
+          ))
+        )}
+      </div>
     </section>
   );
 }

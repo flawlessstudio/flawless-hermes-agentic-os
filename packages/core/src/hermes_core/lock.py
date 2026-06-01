@@ -144,8 +144,8 @@ class FileLock:
             # PID is running (permission denied → process exists)
             return
         except ProcessLookupError:
+            import contextlib
+
             log.warning("file_lock.stale_detected", path=str(self.path), stale_pid=raw)
-            try:
+            with contextlib.suppress(OSError):
                 self.path.unlink(missing_ok=True)
-            except OSError:
-                pass

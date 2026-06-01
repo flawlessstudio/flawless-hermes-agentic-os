@@ -60,8 +60,7 @@ class VectorMemory:
     ) -> None:
         if not _CHROMA_AVAILABLE:
             raise ImportError(
-                "chromadb is required for VectorMemory. "
-                "Install it with: pip install chromadb"
+                "chromadb is required for VectorMemory. Install it with: pip install chromadb"
             )
         self._persist_dir = Path(persist_dir)
         self._persist_dir.mkdir(parents=True, exist_ok=True)

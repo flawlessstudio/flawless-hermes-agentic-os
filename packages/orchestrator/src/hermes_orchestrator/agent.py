@@ -104,9 +104,7 @@ class BaseAgent(abc.ABC):
             If the ``anthropic`` package is not installed.
         """
         if not _ANTHROPIC_AVAILABLE or self._client is None:
-            raise RuntimeError(
-                "anthropic package is required. Install with: pip install anthropic"
-            )
+            raise RuntimeError("anthropic package is required. Install with: pip install anthropic")
 
         self._conversation.append({"role": "user", "content": user_message})
         self._log.info("agent.turn_start", message_len=len(user_message))
@@ -136,9 +134,7 @@ class BaseAgent(abc.ABC):
                     tool_uses.append(block)
 
             # Append assistant message to conversation history.
-            self._conversation.append(
-                {"role": "assistant", "content": response.content}
-            )
+            self._conversation.append({"role": "assistant", "content": response.content})
 
             if response.stop_reason == "end_turn" or not tool_uses:
                 final_text = "\n".join(text_blocks)
@@ -162,13 +158,13 @@ class BaseAgent(abc.ABC):
                         {
                             "type": "tool_result",
                             "tool_use_id": tool_use.id,
-                            "content": str(result.result) if result.success else f"Error: {result.error}",
+                            "content": str(result.result)
+                            if result.success
+                            else f"Error: {result.error}",
                         }
                     )
                 except SandboxViolation as exc:
-                    self._log.error(
-                        "agent.sandbox_violation", tool_name=tool_name, error=str(exc)
-                    )
+                    self._log.error("agent.sandbox_violation", tool_name=tool_name, error=str(exc))
                     tool_results.append(
                         {
                             "type": "tool_result",
@@ -207,7 +203,7 @@ class BaseAgent(abc.ABC):
         """
         ...
 
-    async def handle_message(self, message: "AgentMessage") -> None:
+    async def handle_message(self, message: AgentMessage) -> None:
         """Handle an incoming :class:`AgentMessage` from the bus.
 
         Default implementation is a no-op.  Override in subclasses to
@@ -220,7 +216,7 @@ class BaseAgent(abc.ABC):
         """
 
     @classmethod
-    def default_config(cls) -> "AgentConfig":
+    def default_config(cls) -> AgentConfig:
         """Return the default :class:`AgentConfig` for this agent type.
 
         Override in subclasses to provide pre-configured defaults.
@@ -231,8 +227,8 @@ class BaseAgent(abc.ABC):
         self,
         recipient_id: str,
         topic: str,
-        payload: "dict[str, Any] | None" = None,
-        bus: "AsyncMessageBus | None" = None,
+        payload: dict[str, Any] | None = None,
+        bus: AsyncMessageBus | None = None,
     ) -> None:
         """Send a message to another agent via the bus.
 
@@ -265,7 +261,5 @@ class BaseAgent(abc.ABC):
 
     def __repr__(self) -> str:
         return (
-            f"{type(self).__name__}("
-            f"agent_id={self.config.agent_id!r}, "
-            f"model={self.config.model!r})"
+            f"{type(self).__name__}(agent_id={self.config.agent_id!r}, model={self.config.model!r})"
         )

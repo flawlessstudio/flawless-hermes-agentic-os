@@ -15,6 +15,9 @@ dependencies = [
     "hermes-core",
 ]
 
+[tool.uv.sources]
+hermes-core = { workspace = true }
+
 [project.optional-dependencies]
 dev = [
     "pytest>=8.3",

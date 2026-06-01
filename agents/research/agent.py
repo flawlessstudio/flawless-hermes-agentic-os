@@ -1,4 +1,5 @@
 """Research agent — web search, summarization, and knowledge retrieval."""
+
 from __future__ import annotations
 
 from hermes_orchestrator.agent import BaseAgent
@@ -12,14 +13,16 @@ class ResearchAgent(BaseAgent):
     Allowed tools: web_search, fetch_url, read_file, summarize, store_memory, recall_memory
     """
 
-    ALLOWED_TOOLS: frozenset[str] = frozenset({
-        "web_search",
-        "fetch_url",
-        "read_file",
-        "summarize",
-        "store_memory",
-        "recall_memory",
-    })
+    ALLOWED_TOOLS: frozenset[str] = frozenset(
+        {
+            "web_search",
+            "fetch_url",
+            "read_file",
+            "summarize",
+            "store_memory",
+            "recall_memory",
+        }
+    )
 
     async def handle_tool(self, call: ToolCall) -> ToolResult:
         """Execute a verified tool call. Tools are wired via MCP in F4."""

@@ -265,9 +265,7 @@ class GraphMemory:
         frontier.append((start_id, 0))
 
         while frontier:
-            node_id, current_depth = (
-                frontier.popleft() if mode == "bfs" else frontier.pop()
-            )
+            node_id, current_depth = frontier.popleft() if mode == "bfs" else frontier.pop()
             if node_id in visited_nodes:
                 continue
             node = self.get_node(node_id)
