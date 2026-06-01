@@ -101,9 +101,7 @@ class OpsAgent(BaseAgent):
             "timestamp": datetime.now(UTC).isoformat(),
             "python": sys.version,
             "platform": platform.platform(),
-            "env": {
-                var: ("set" if os.environ.get(var) else "MISSING") for var in required_vars
-            },
+            "env": {var: ("set" if os.environ.get(var) else "MISSING") for var in required_vars},
             "optional_env": {
                 var: ("set" if os.environ.get(var) else "not set") for var in optional_vars
             },
