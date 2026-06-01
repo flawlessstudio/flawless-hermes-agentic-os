@@ -1,0 +1,6 @@
+interface:
+  display_name: "Flawless Hermes Agentic Os"
+  short_description: "Repo-specific patterns and workflows for flawless-hermes-agentic-os"
+  default_prompt: "Use the flawless-hermes-agentic-os repo skill to follow existing architecture, testing, and workflow conventions."
+policy:
+  allow_implicit_invocation: true
