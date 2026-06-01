@@ -51,7 +51,7 @@ lint:
 	@echo "→ Ruff check…"
 	uv run ruff check packages agents
 	@echo "→ Mypy check…"
-	uv run mypy packages/core/src packages/memory/src packages/orchestrator/src packages/api/src
+	uv run mypy --package hermes_core --package hermes_memory --package hermes_orchestrator --package hermes_api
 	@echo "→ ESLint…"
 	pnpm --filter mission-control lint
 	@echo "✓ All lint checks passed"

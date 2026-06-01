@@ -1,0 +1,50 @@
+name: hermes
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PAUSA HUMANA: copy .env.example → .env and fill in your secrets before
+#               running `docker compose up`.  Never commit a populated .env.
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: hermes-api:local
+    env_file: .env
+    ports:
+      - "8000:8000"
+    volumes:
+      # Persist ChromaDB vector store
+      - chroma_data:/app/data/chroma
+      # Persist agent memory files
+      - agent_memory:/app/data/memory
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+
+  ui:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: hermes-ui:local
+    env_file: .env
+    environment:
+      NEXT_PUBLIC_API_URL: "http://api:8000"
+    ports:
+      - "3000:3000"
+    command: ["node", "apps/mission-control/.next/standalone/server.js"]
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  chroma_data:
+  agent_memory:
