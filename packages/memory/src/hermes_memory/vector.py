@@ -189,7 +189,7 @@ class VectorMemory:
     def count(self, agent_id: str) -> int:
         """Return the number of entries in the agent's collection."""
         col = self._get_or_create_collection(agent_id)
-        return col.count()
+        return int(col.count())
 
     def clear_agent(self, agent_id: str) -> None:
         """Delete the entire collection for *agent_id*."""

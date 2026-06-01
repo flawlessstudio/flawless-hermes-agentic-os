@@ -38,7 +38,7 @@ async def remember(body: MemoryRememberRequest, request: Request) -> MemoryRemem
 async def search_memory(body: MemorySearchRequest, request: Request) -> list[MemoryQueryResult]:
     """Perform a semantic similarity search over an agent's memories."""
     memory_manager = request.app.state.memory_manager
-    results = memory_manager.recall(
+    results: list[MemoryQueryResult] = memory_manager.recall(
         agent_id=body.agent_id,
         query=body.query,
         n=body.n,

@@ -19,7 +19,7 @@ describe("truncate", () => {
   it("truncates long strings", () => {
     const result = truncate("hello world", 8);
     expect(result).toHaveLength(8);
-    expect(result).toEndWith("…");
+    expect(result.endsWith("…")).toBe(true);
   });
 });
 

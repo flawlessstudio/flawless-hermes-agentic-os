@@ -75,6 +75,7 @@ class TestDurabilityUnderSIGKILL:
         # Small sleep to let it start the write, then KILL.
         time.sleep(0.005)
         import contextlib
+
         with contextlib.suppress(ProcessLookupError):
             os.kill(proc.pid, signal.SIGKILL)
         proc.wait()

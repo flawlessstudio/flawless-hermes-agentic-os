@@ -1,4 +1,5 @@
 """Tests for the Hermes API — GATE F5."""
+
 from __future__ import annotations
 
 import pytest
@@ -11,6 +12,7 @@ from hermes_api.main import create_app
 def client() -> TestClient:
     app = create_app()
     from hermes_orchestrator.registry import AgentRegistry
+
     app.state.registry = AgentRegistry()
     return TestClient(app)
 

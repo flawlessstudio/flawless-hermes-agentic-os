@@ -27,7 +27,7 @@ jobs:
       - name: Ruff format check
         run: uv run ruff format --check packages agents
       - name: mypy
-        run: uv run mypy packages/core/src packages/memory/src packages/orchestrator/src packages/api/src
+        run: uv run mypy --package hermes_core --package hermes_memory --package hermes_orchestrator --package hermes_api
 
   python-test:
     name: Python Tests
@@ -61,10 +61,9 @@ jobs:
         with:
           node-version: "22"
           cache: "pnpm"
-          cache-dependency-path: apps/mission-control/pnpm-lock.yaml
+          cache-dependency-path: pnpm-lock.yaml
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-        working-directory: apps/mission-control
       - name: Type check
         run: pnpm tsc --noEmit
         working-directory: apps/mission-control
@@ -84,10 +83,9 @@ jobs:
         with:
           node-version: "22"
           cache: "pnpm"
-          cache-dependency-path: apps/mission-control/pnpm-lock.yaml
+          cache-dependency-path: pnpm-lock.yaml
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-        working-directory: apps/mission-control
       - name: Vitest
         run: pnpm test
         working-directory: apps/mission-control

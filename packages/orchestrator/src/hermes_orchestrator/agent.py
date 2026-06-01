@@ -73,6 +73,7 @@ class BaseAgent(abc.ABC):
         self._conversation: list[dict[str, Any]] = []
         self._log = log.bind(agent_id=config.agent_id, model=config.model)
 
+        self._client: anthropic.AsyncAnthropic | None
         if _ANTHROPIC_AVAILABLE:
             self._client = anthropic.AsyncAnthropic()
         else:
@@ -114,8 +115,8 @@ class BaseAgent(abc.ABC):
                 model=self.config.model,
                 max_tokens=self.config.max_tokens,
                 system=self.config.system_prompt,
-                messages=self._conversation,
-                tools=self.TOOL_SCHEMAS if self.TOOL_SCHEMAS else anthropic.NOT_GIVEN,
+                messages=self._conversation,  # type: ignore[arg-type]
+                tools=self.TOOL_SCHEMAS if self.TOOL_SCHEMAS else anthropic.NOT_GIVEN,  # type: ignore[arg-type]
             )
             self._log.debug(
                 "agent.api_response",
