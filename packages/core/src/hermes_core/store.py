@@ -16,10 +16,7 @@ state is available intact — never a half-written file.
 from __future__ import annotations
 
 import contextlib
-import os
-import shutil
 import sqlite3
-import tempfile
 from pathlib import Path
 from types import TracebackType
 from typing import Any, Self
