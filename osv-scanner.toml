@@ -1,0 +1,4 @@
+[[IgnoredVulns]]
+id = "GHSA-f4j7-r4q5-qw2c"
+ignoreUntil = "2026-12-01T00:00:00Z"
+reason = "chromadb is used exclusively via PersistentClient (embedded in-process mode). CVE-2026-45829 requires the chromadb Python FastAPI HTTP server running with trust_remote_code=True exposed to untrusted network clients. Not applicable to this deployment."
