@@ -1,0 +1,9 @@
+{
+  "name": "flawless-hermes-agentic-os",
+  "private": true,
+  "pnpm": {
+    "overrides": {
+      "postcss": ">=8.5.10"
+    }
+  }
+}
