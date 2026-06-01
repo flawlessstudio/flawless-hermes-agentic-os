@@ -28,6 +28,9 @@ jobs:
   osv-scan:
     name: OSV Dependency Scan
     runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - name: OSV Scanner
@@ -35,13 +38,12 @@ jobs:
         with:
           scan-args: |-
             --recursive
-            --format=table
             ./
-          results-file-name: osv-results.json
+          results-file-name: osv-results.sarif
       - name: Upload scan results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: osv-scan-results
-          path: osv-results.json
+          path: osv-results.sarif
           if-no-files-found: ignore
