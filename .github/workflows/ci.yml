@@ -24,6 +24,7 @@ jobs:
         with:
           node-version-file: .nvmrc
 
+      # Bootstrap phase: generate the first reviewed lockfile from declared constraints.
       - name: Bootstrap dependencies and lockfile
         run: npm install
 
