@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -18,18 +18,17 @@ jobs:
     name: Install · Lint · Type-check · Test · Build · Audit
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout branch
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref || github.ref_name }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
+          cache: npm
 
-      - name: Bootstrap dependencies and lockfile
-        run: npm install
+      - name: Install locked dependencies
+        run: npm ci
 
       - name: Lint
         run: npm run lint
@@ -46,25 +45,14 @@ jobs:
       - name: Generate audit evidence
         run: npm audit --json > npm-audit.json || true
 
-      - name: Upload bootstrap evidence
+      - name: Upload audit evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: bootstrap-evidence
-          path: |
-            package-lock.json
-            npm-audit.json
+          name: dependency-audit
+          path: npm-audit.json
           if-no-files-found: error
-          retention-days: 1
+          retention-days: 14
 
       - name: Enforce dependency audit
         run: npm audit --audit-level=high
-
-      - name: Commit generated lockfile
-        if: github.event_name == 'pull_request'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add package-lock.json
-          git diff --cached --quiet || git commit -m "chore: add generated package lock"
-          git push origin HEAD:${{ github.head_ref }}
