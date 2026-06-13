@@ -1,40 +1,68 @@
 # Security Policy
 
-## Supported Versions
+## Supported versions
 
 | Version | Supported |
 |---|---|
-| `main` (latest) | ✅ |
-| Older branches | ❌ |
+| `main` | Yes, after a validated release |
+| Open pull-request branches | Best effort during review |
+| Historical branches | No |
 
-## Reporting a Vulnerability
+## Reporting a vulnerability
 
-Do **not** open a public issue for security vulnerabilities.
+Do not open a public issue for sensitive security reports.
 
 Report privately via email: **oneflawlessstudio@gmail.com**
 
-- Subject: `[SECURITY] flawless-hermes-agentic-os — <short description>`
-- Include: steps to reproduce, impact assessment, affected version
-- SLA: acknowledgement within **48 hours**, patch timeline communicated within **7 days**
+Include the affected commit or version, reproduction steps, observed impact and any relevant logs with secrets removed.
 
-## Scope
+Response timing is best effort; no contractual service level is claimed.
 
-**In scope:**
-- Injection vulnerabilities in agent bridge layer
-- Secret/credential exposure via logs or API responses
-- Unauthorized local access via dashboard endpoints
-- Dependency vulnerabilities (high/critical CVEs)
+## Current security scope
 
-**Out of scope:**
-- Vulnerabilities in Hermes Agent, OpenClaw or Claude Code upstream projects
-- Social engineering
-- Physical access attacks
+The current application is a local, read-only scaffold with deterministic mock agent data.
 
-## Security Practices
+In scope:
 
-- Zero secrets in code or Git history
-- All secrets via `.env.local` (gitignored)
-- Secret scanning active in CI (see `.github/workflows/secret-scan.yml`)
-- Dependabot enabled for npm dependencies
-- Input validation on all agent bridge calls
-- No PII logged
+- unintended exposure through dashboard or API responses;
+- permission-policy bypasses;
+- committed credentials or sensitive values;
+- dependency vulnerabilities;
+- unsafe defaults introduced by future adapter work.
+
+Not currently implemented:
+
+- real agent bridges;
+- local process control;
+- vault-content access;
+- remote gateway exposure;
+- external communications;
+- billable API calls.
+
+Upstream vulnerabilities in third-party agents or tools should also be reported to their respective maintainers.
+
+## Current controls
+
+- No credential is required by the scaffold.
+- `.env*` secrets are excluded from version control.
+- Secret scanning runs in GitHub Actions.
+- Dependabot is configured for npm and GitHub Actions.
+- Agent data is produced by a deterministic mock provider.
+- Capability decisions are explicit and deny by default.
+- Consequential capabilities require approval.
+- Irreversible data capability is denied.
+- Permission boundaries are covered by automated tests.
+
+## Requirements for future adapters
+
+Before enabling an adapter, add and validate:
+
+- local trust boundary and authentication where applicable;
+- least-privilege credentials;
+- input and output validation;
+- timeout, cancellation and safe failure;
+- secret redaction;
+- authorization and approval checks;
+- audit events;
+- normal, error and unauthorized-path tests;
+- rollback or recovery procedures.
