@@ -5,7 +5,7 @@
 ## Current status
 
 ```text
-Phase: executable scaffold under validation
+Phase: validated executable scaffold
 Dashboard: implemented
 Status data: deterministic mock
 Local adapters: disabled
@@ -86,7 +86,7 @@ npm run build
 npm audit --audit-level=high
 ```
 
-The CI badge is not sufficient evidence by itself. Validation requires the current committed lockfile and successful gates against the current commit.
+The committed lockfile has been validated through `npm ci`. Lint, type checking, tests, production build and the high-severity dependency audit pass against the scaffold. The audit reports zero known vulnerabilities at the time of validation. See [`docs/validation.md`](docs/validation.md) for evidence and limitations.
 
 ## Runtime policy
 
