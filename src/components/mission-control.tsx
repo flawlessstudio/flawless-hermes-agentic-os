@@ -66,7 +66,7 @@ export function MissionControl({ agents }: MissionControlProps) {
                 </div>
                 <div>
                   <dt>Last checked</dt>
-                  <dd>{new Date(agent.lastCheckedAt).toLocaleString()}</dd>
+                  <dd><time dateTime={agent.lastCheckedAt}>{agent.lastCheckedAt}</time></dd>
                 </div>
               </dl>
             </motion.article>
