@@ -1,223 +1,153 @@
-# 🧠 Flawless Hermes Agentic OS
+# Flawless Hermes Agentic OS
 
-> **Local-first AI Operating System** — Mission Control dashboard for orchestrating Hermes Agent, OpenClaw and Claude Code as a unified agentic stack.
+> Local-first Mission Control scaffold for observing agent roles with explicit permission boundaries.
 
 [![CI](https://github.com/flawlessstudio/flawless-hermes-agentic-os/actions/workflows/ci.yml/badge.svg)](https://github.com/flawlessstudio/flawless-hermes-agentic-os/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.md)
-[![Node](https://img.shields.io/badge/node-%3E%3D22.19-brightgreen)](https://nodejs.org)
-[![Stack](https://img.shields.io/badge/stack-Next.js%20%7C%20Tailwind%20%7C%20Framer-black)](#stack)
 
----
+## Current status
 
-## Overview
+```text
+Phase: executable scaffold under validation
+Dashboard: implemented
+Agent status: deterministic mock
+Real adapters: disabled
+Privileged capabilities: disabled or approval-gated by policy
+Credentials required: no
+Public-production readiness: not claimed
+```
 
-**Flawless Hermes Agentic OS** is a local Mission Control dashboard that connects and visualises the live status of your AI agents in a browser-based interface. No cloud dependency. No SaaS. Runs entirely on your machine.
+The repository now contains a real Next.js application, but it does **not** yet orchestrate Claude Code, OpenClaw, Hermes Agent or an Obsidian vault. Those integrations remain future, separately reviewed adapters.
 
-Built on top of the validated [Hermes Agentic OS guide](https://skool.com/ai-profit-lab-7462) (AI Profit Boardroom) with a production-grade Flawless Studio architecture layer on top.
+## Implemented scope
 
----
+- Next.js 15 / React 19 / TypeScript application scaffold.
+- Responsive Mission Control interface.
+- `GET /api/health` application-health endpoint.
+- `GET /api/agents` deterministic mock-status endpoint.
+- Typed agent-status contract.
+- Deny-by-default capability policy.
+- Tests for permission boundaries.
+- ESLint, type checking, tests, build and dependency-audit gates.
+- Architecture, permissions and validation documentation.
+
+## Explicitly not implemented
+
+- autonomous orchestration;
+- real agent process control;
+- vault-content access;
+- external communication;
+- repository or system changes;
+- billable API calls;
+- background daemons;
+- remote gateway exposure.
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────┐
-│              YOU (Mission Operator)     │
-│          localhost:3000 · browser       │
-└────────────────┬────────────────────────┘
-                 │
-     ┌───────────▼───────────┐
-     │  Next.js Dashboard    │  ← Mission Control UI
-     │  Tailwind + Framer    │
-     └──┬─────────┬──────────┘
-        │         │
-┌───────▼──┐  ┌───▼──────┐
-│  Claude  │  │ OpenClaw │  ← Intelligence + Gateway
-│  Code    │  │ Gateway  │
-└──────────┘  └────┬─────┘
-                   │
-            ┌──────▼──────┐
-            │   Hermes    │  ← Execution Layer
-            │   Agent     │
-            └──────┬──────┘
-                   │
-            ┌──────▼──────┐
-            │   Obsidian  │  ← Self / Memory Layer
-            │   Vault     │
-            └─────────────┘
+```text
+Browser
+  ↓
+Next.js Mission Control
+  ├── /api/health       application status
+  ├── /api/agents       mock agent status
+  ├── agent contracts   typed read model
+  └── policy module     allow / approval-required / deny
 ```
 
-| Layer | Tool | Role |
-|---|---|---|
-| Intelligence | Claude Code | Think, plan, build |
-| Gateway | OpenClaw | Route, coordinate, manage sessions |
-| Execution | Hermes Agent | Research, kanban, plugins, tool calls |
-| Self | Obsidian | Goals, journal, permanent memory |
+See [`docs/architecture.md`](docs/architecture.md) and [`docs/permissions.md`](docs/permissions.md).
 
----
-
-## Stack
+## Stack contract
 
 | Area | Technology |
 |---|---|
-| Dashboard | Next.js 15, React 19, TypeScript |
-| Styling | Tailwind CSS v4, Framer Motion |
-| Runtime | Node.js 24 LTS |
-| Agent Layer | Hermes Agent v0.15+, OpenClaw v2026 |
-| Intelligence | Claude Code (Anthropic API) |
-| Memory | Obsidian (local vault) |
-
----
-
-## Prerequisites
-
-| Requirement | Minimum | Recommended |
-|---|---|---|
-| RAM | 8 GB | 16 GB |
-| Disk | 5 GB free | 20 GB |
-| OS | macOS 13 · Ubuntu 22.04 · Windows 11 WSL2 | macOS 14 · Ubuntu 24.04 |
-| Node.js | v22.19 | v24 LTS |
-| Browser | Chrome 120 / Safari 17 | Chrome (voice input) |
-
----
+| Application | Next.js 15, React 19, TypeScript |
+| Styling | Tailwind CSS 4, custom responsive CSS |
+| Motion | Framer Motion |
+| Tests | Vitest |
+| Runtime | Node.js 22.19+; Node 24 recommended |
 
 ## Quickstart
 
 ```bash
-# 1. Clone
 git clone https://github.com/flawlessstudio/flawless-hermes-agentic-os.git
 cd flawless-hermes-agentic-os
-
-# 2. Install Node 24 LTS (if not present)
-nvm install 24 && nvm use 24
-
-# 3. Install Hermes Agent
-curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
-
-# 4. Install OpenClaw
-npm install -g openclaw@latest
-openclaw onboard --install-daemon
-
-# 5. Install project dependencies
-npm install
-
-# 6. Copy env and add your API key
-cp .env.example .env.local
-# → Edit .env.local and add ANTHROPIC_API_KEY
-
-# 7. Verify all agents are live
-openclaw gateway status   # → should show LIVE
-hermes --version          # → should respond
-openclaw doctor           # → should pass clean
-
-# 8. Launch dashboard
+nvm use
+npm ci
 npm run dev
-# → open http://localhost:3000
 ```
 
----
+Open `http://localhost:3000`.
 
-## Environment Variables
+The scaffold runs without `.env.local`, API keys, local agents or paid services.
 
-See [`.env.example`](.env.example) for all variables. Never commit real values.
-
-| Variable | Required | Description |
-|---|---|---|
-| `ANTHROPIC_API_KEY` | ✅ | Claude Code API key (pay-per-token) |
-| `OBSIDIAN_VAULT_PATH` | ✅ | Absolute path to your Obsidian vault |
-| `OPENCLAW_GATEWAY_PORT` | ⬜ | Default: `4242` |
-| `HERMES_PORT` | ⬜ | Default: `7777` |
-
----
-
-## Cost Notice
-
-> ⚠️ **Claude Code is NOT free.** It requires an Anthropic account with active billing.
-> - Pro plan: $20/month (Sonnet)
-> - Max plan: $100–200/month (Opus)
-> - API pay-per-token: from $1/M tokens (Haiku) to $25/M tokens (Opus)
->
-> The local dashboard and agents (Hermes, OpenClaw, Obsidian) are free. Only Claude Code has a cost.
-
----
-
-## OS-Specific Notes
-
-**Obsidian vault path by OS:**
+## Validation
 
 ```bash
-# macOS
-~/Documents/Obsidian Vault
-
-# Linux
-~/ObsidianVault
-
-# Windows WSL2
-/mnt/c/Users/<username>/Documents/ObsidianVault
-
-# Windows native
-C:\Users\<username>\Documents\ObsidianVault
+npm run lint
+npm run type-check
+npm run test
+npm run build
+npm audit --audit-level=high
 ```
 
-**OpenClaw DEGRADED fix:**
-```bash
-openclaw doctor
-openclaw gateway restart
-# or simply:
-openclaw update
+The authoritative validation state is recorded in [`docs/validation.md`](docs/validation.md). A badge alone is not treated as evidence; the workflow must pass against the current commit and committed lockfile.
+
+## Permission model
+
+| Decision | Meaning |
+|---|---|
+| `allow` | Bounded read-only capability |
+| `approval-required` | Consequential capability requiring explicit authorization |
+| `deny` | Unavailable capability |
+
+Any undeclared capability resolves to `deny`.
+
+## API responses
+
+### `GET /api/health`
+
+Returns application phase, timestamp and whether adapters are enabled.
+
+### `GET /api/agents`
+
+Returns the typed mock status for the declared agent layers. It does not probe local processes or external services.
+
+## Project structure
+
+```text
+src/
+├── app/
+│   ├── api/health/route.ts
+│   ├── api/agents/route.ts
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── page.tsx
+├── components/mission-control.tsx
+└── lib/
+    ├── agents/
+    └── policy/
+
+tests/permissions.test.ts
+docs/architecture.md
+docs/permissions.md
+docs/validation.md
 ```
 
----
+## Future adapters
 
-## Scripts
+A real adapter may be introduced only after:
 
-```bash
-npm run dev          # Start development server
-npm run build        # Production build
-npm run start        # Start production server
-npm run lint         # ESLint check
-npm run lint:fix     # ESLint auto-fix
-npm run type-check   # TypeScript check
-```
-
----
-
-## Project Structure
-
-```
-flawless-hermes-agentic-os/
-├── .github/
-│   ├── workflows/          # CI, secret-scan
-│   ├── ISSUE_TEMPLATE/     # Bug, feature templates
-│   └── PULL_REQUEST_TEMPLATE.md
-├── src/
-│   ├── app/                # Next.js App Router
-│   ├── components/         # UI components
-│   ├── lib/                # Agent bridge utilities
-│   └── types/              # TypeScript types
-├── public/
-├── .env.example
-├── .nvmrc
-├── .editorconfig
-├── CHANGELOG.md
-├── CONTRIBUTING.md
-├── SECURITY.md
-└── README.md
-```
-
----
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md).
-
----
+1. its local interface and trust boundary are documented;
+2. permissions and credentials are minimized;
+3. approval, timeout, cancellation and recovery behavior are defined;
+4. tests cover normal, error and unauthorized paths;
+5. CI passes against the real integration;
+6. the documentation is updated from mock to observed behavior.
 
 ## Security
 
-See [SECURITY.md](SECURITY.md). Never push API keys. Secret scanning is active in CI.
-
----
+Never commit credentials. Report sensitive issues through [`SECURITY.md`](SECURITY.md).
 
 ## License
 
-MIT © 2026 [Flawless Studio](https://github.com/flawlessstudio)
+MIT © 2026 Flawless Studio
