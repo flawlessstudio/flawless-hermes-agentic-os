@@ -9,7 +9,7 @@ export const CAPABILITIES = [
   "repository.write",
   "communication.external",
   "billing.consume",
-  "data.destructive"
+  "data.irreversible"
 ] as const;
 
 export type Capability = (typeof CAPABILITIES)[number];
@@ -32,7 +32,7 @@ export const POLICY_RULES: readonly PolicyRule[] = [
   { capability: "repository.write", decision: "approval-required", rationale: "Requires reviewed changes." },
   { capability: "communication.external", decision: "approval-required", rationale: "Creates external consequences." },
   { capability: "billing.consume", decision: "approval-required", rationale: "Requires an approved budget." },
-  { capability: "data.destructive", decision: "deny", rationale: "Disabled in the scaffold." }
+  { capability: "data.irreversible", decision: "deny", rationale: "Disabled in the scaffold." }
 ] as const;
 
 export function getPolicyDecision(capability: Capability): PolicyDecision {
