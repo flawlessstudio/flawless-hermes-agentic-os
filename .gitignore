@@ -106,3 +106,4 @@ coverage/
 *.whl
 *.tar.gz
 uv.lock.bak
+.claude/worktrees/
