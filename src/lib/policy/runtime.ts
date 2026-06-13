@@ -8,9 +8,10 @@ export const RUNTIME_POLICY = {
 } as const;
 
 export type RuntimePolicy = typeof RUNTIME_POLICY;
+export type RuntimeFeature = keyof RuntimePolicy;
 
-export function enabledFeatures(policy: RuntimePolicy = RUNTIME_POLICY): string[] {
+export function enabledFeatures(policy: RuntimePolicy = RUNTIME_POLICY): RuntimeFeature[] {
   return Object.entries(policy)
     .filter(([, enabled]) => enabled)
-    .map(([name]) => name);
+    .map(([name]) => name as RuntimeFeature);
 }
