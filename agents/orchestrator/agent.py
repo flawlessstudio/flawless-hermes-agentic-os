@@ -83,7 +83,9 @@ class OrchestratorAgent(BaseAgent):
                 "properties": {
                     "agent_role": {
                         "type": "string",
-                        "description": "Target agent role (research/code/ops/data/security/writer).",
+                        "description": (
+                            "Target agent role (research/code/ops/data/security/writer)."
+                        ),
                     },
                     "task": {"type": "string", "description": "Task description for the agent."},
                     "priority": {

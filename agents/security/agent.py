@@ -140,7 +140,7 @@ class SecurityAgent(BaseAgent):
                 success=False,
                 error=f"Unknown tool: {call.tool_name}",
             )
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             log.error("security_agent.tool_error", tool=call.tool_name, error=str(exc))
             return ToolResult(
                 call_id=call.call_id,
@@ -214,14 +214,19 @@ class SecurityAgent(BaseAgent):
 
     async def _analyze_sbom(self, call: ToolCall) -> ToolResult:
         py_proc = await asyncio.create_subprocess_exec(
-            "uv", "pip", "freeze",
+            "uv",
+            "pip",
+            "freeze",
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
         py_out, _ = await py_proc.communicate()
 
         node_proc = await asyncio.create_subprocess_exec(
-            "pnpm", "list", "--json", "--depth=0",
+            "pnpm",
+            "list",
+            "--json",
+            "--depth=0",
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
@@ -262,10 +267,7 @@ class SecurityAgent(BaseAgent):
         )
         chk(
             "no secrets in ENV/ARG",
-            not any(
-                kw in content.upper()
-                for kw in ["PASSWORD=", "SECRET=", "API_KEY=", "TOKEN="]
-            ),
+            not any(kw in content.upper() for kw in ["PASSWORD=", "SECRET=", "API_KEY=", "TOKEN="]),
             "Secrets must never be set via ENV or ARG — use runtime env injection.",
         )
         chk(

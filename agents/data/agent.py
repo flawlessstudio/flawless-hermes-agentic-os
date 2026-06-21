@@ -159,7 +159,7 @@ class DataAgent(BaseAgent):
             relation = con.execute(query)
             rows = relation.fetchall()
             columns = [desc[0] for desc in relation.description] if relation.description else []
-            result_dicts = [dict(zip(columns, row)) for row in rows]
+            result_dicts = [dict(zip(columns, row, strict=False)) for row in rows]
             con.close()
             log.info("data_agent.sql_ok", rows=len(result_dicts), query=query[:80])
             return ToolResult(
@@ -199,9 +199,9 @@ class DataAgent(BaseAgent):
             )
         try:
             con = duckdb.connect(":memory:")
-            con.execute(f"CREATE TABLE {table_name} AS SELECT * FROM read_csv_auto('{path}')")
+            con.execute(f"CREATE TABLE {table_name} AS SELECT * FROM read_csv_auto('{path}')")  # noqa: S608
             schema_rows = con.execute(f"DESCRIBE {table_name}").fetchall()
-            count = con.execute(f"SELECT COUNT(*) FROM {table_name}").fetchone()[0]
+            count = con.execute(f"SELECT COUNT(*) FROM {table_name}").fetchone()[0]  # noqa: S608
             schema = [{"column": r[0], "type": r[1]} for r in schema_rows]
             con.close()
             return ToolResult(
@@ -261,10 +261,7 @@ class DataAgent(BaseAgent):
                 call_id=call.call_id,
                 tool_name=call.tool_name,
                 success=False,
-                error=(
-                    "chromadb not installed. "
-                    "Install with: pip install chromadb"
-                ),
+                error=("chromadb not installed. Install with: pip install chromadb"),
             )
         collection_name = call.arguments["collection"]
         query = call.arguments["query"]
